@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jungle Snake</title>
+    <style>
+        :root {
+            --jungle-bg: #1b5e20;
+            --jungle-light: #4c8c4a;
+            --snake-color: #66bb6a;
+            --snake-head: #a5d6a7;
+            --ui-bg: #212121;
+            --text-color: #ecf0f1;
+            --accent: #ffeb3b; /* Pineapple Yellow */
+        }
+
+        body {
+            background-color: var(--jungle-bg);
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace; /* Blocky/Retro font */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0px #000;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+
+        /* --- Game Area Layout --- */
+        .game-wrapper {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        canvas {
+            background-color: #0d3b10; /* Darker green for game board */
+            border: 5px solid #000;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: block;
+        }
+
+        /* --- UI & Controls Panel --- */
+        .controls-panel {
+            background-color: var(--ui-bg);
+            padding: 20px;
+            border: 2px solid #555;
+            width: 300px;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.5);
+        }
+
+        .score-board {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #555;
+            padding-bottom: 10px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .settings-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .val-display {
+            float: right;
+            color: var(--accent);
+        }
+
+        /* --- Buttons --- */
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-start {
+            background-color: var(--accent);
+            color: #000;
+        }
+
+        .btn-normal {
+            background-color: var(--jungle-light);
+            color: white;
+            margin-top: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Overlay for Game Over */
+        #msg-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            text-align: center;
+            border: 2px solid var(--accent);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Jungle Snake 🐍</h1>
+
+    <div class="game-wrapper">
+        <div style="position: relative;">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <div id="msg-overlay">
+                <h2 style="color:red">GAME OVER</h2>
+                <p>Press any arrow key to restart</p>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="score-board">
+                <div class="score-item">
+                    <span>Score:</span> <span id="score">0</span>
+                </div>
+                <div class="score-item" style="color: var(--accent);">
+                    <span>High Score:</span> <span id="highScore">0</span>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label>Map Size (Tiles) <span id="size-val" class="val-display">20</span></label>
+                <input type="range" id="mapSize" min="10" max="40" value="20">
+            </div>
+
+            <div class="settings-group">
+                <label>Speed (ms delay) <span id="speed-val" class="val-display">100</span></label>
+                <input type="range" id="gameSpeed" min="30" max="300" value="100" style="direction: rtl">
+                <small style="color: #aaa; font-size: 0.7rem;">(Left = Fast, Right = Slow)</small>
+            </div>
+
+            <button class="btn-start" onclick="resetGame()">Restart / Apply Settings</button>
+            <button class="btn-normal" onclick="setNormalMode()">Reset to Normal Mode</button>
+            
+            <p style="font-size: 0.8rem; margin-top: 15px; color: #aaa; text-align: center;">
+                Use <strong>Arrow Keys</strong> to move.
+            </p>
+        </div>
+    </div>
+
+<script>
+    // --- Configuration & State ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // UI Elements
+    const scoreEl = document.getElementById('score');
+    const highScoreEl = document.getElementById('highScore');
+    const msgOverlay = document.getElementById('msg-overlay');
+    const inputSize = document.getElementById('mapSize');
+    const inputSpeed = document.getElementById('gameSpeed');
+    const displaySize = document.getElementById('size-val');
+    const displaySpeed = document.getElementById('speed-val');
+
+    // Game Variables
+    let tileSize = 20; // Pixels per square
+    let tileCount = 20; // Default 20x20 grid
+    
+    let xv = 0; // X Velocity
+    let yv = 0; // Y Velocity
+    
+    let px = 10; // Player X Position
+    let py = 10; // Player Y Position
+    
+    let trail = []; // Snake body parts
+    let tail = 5;   // Length of snake
+    
+    let ax = 15; // Apple (Pineapple) X Position
+    let ay = 15; // Apple (Pineapple) Y Position
+    
+    let score = 0;
+    let gameInterval;
+    let isGameOver = false;
+
+    // Load High Score from Local Storage
+    let highScore = localStorage.getItem('jungleSnakeHighScore') || 0;
+    highScoreEl.innerText = highScore;
+
+    // --- Input Listeners for Settings ---
+    inputSize.addEventListener('input', (e) => {
+        displaySize.innerText = e.target.value;
+    });
+
+    inputSpeed.addEventListener('input', (e) => {
+        displaySpeed.innerText = e.target.value;
+    });
+
+    // --- Game Logic ---
+
+    // Initialize/Reset Game
+    function resetGame() {
+        // Stop current loop
+        clearInterval(gameInterval);
+        isGameOver = false;
+        msgOverlay.style.display = 'none';
+
+        // Apply Settings
+        tileCount = parseInt(inputSize.value);
+        let speed = parseInt(inputSpeed.value);
+        
+        // Update Canvas Size based on settings
+        canvas.width = tileCount * tileSize;
+        canvas.height = tileCount * tileSize;
+
+        // Reset positions
+        px = Math.floor(tileCount / 2);
+        py = Math.floor(tileCount / 2);
+        xv = 0;
+        yv = 0;
+        trail = [];
+        tail = 5;
+        score = 0;
+        scoreEl.innerText = score;
+
+        // Start Loop
+        gameInterval = setInterval(game, speed);
+    }
+
+    function setNormalMode() {
+        inputSize.value = 20;
+        displaySize.innerText = 20;
+        inputSpeed.value = 100;
+        displaySpeed.innerText = 100;
+        resetGame();
+    }
+
+    function game() {
+        if(isGameOver) return;
+
+        // Move Snake
+        px += xv;
+        py += yv;
+
+        // Wall Collision Logic (Wrap around or Die? Let's do Die for high stakes)
+        if(px < 0 || px >= tileCount || py < 0 || py >= tileCount) {
+            handleGameOver();
+            return;
+        }
+
+        // Draw Background
+        ctx.fillStyle = '#0d3b10';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Snake
+        ctx.fillStyle = '#66bb6a'; // Body color
+        for(let i = 0; i < trail.length; i++) {
+            // Highlight head
+            if(i === trail.length - 1) ctx.fillStyle = '#a5d6a7'; 
+            
+            ctx.fillRect(trail[i].x * tileSize, trail[i].y * tileSize, tileSize - 2, tileSize - 2);
+
+            // Self Collision check
+            if(trail[i].x === px && trail[i].y === py) {
+               // Only trigger death if we are moving (prevents death on start)
+               if(xv !== 0 || yv !== 0) {
+                   handleGameOver();
+               }
+            }
+        }
+
+        // Manage Trail (Snake movement memory)
+        trail.push({x: px, y: py});
+        while(trail.length > tail) {
+            trail.shift();
+        }
+
+        // Draw Pineapple 🍍
+        // We use text/emoji for the pineapple
+        ctx.font = `${tileSize - 2}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        // Adjust x/y to center in the square
+        let emojiX = (ax * tileSize) + (tileSize / 2);
+        let emojiY = (ay * tileSize) + (tileSize / 2) + 2; 
+        ctx.fillText("🍍", emojiX, emojiY);
+
+        // Eat Pineapple Logic
+        if(ax === px && ay === py) {
+            tail++;
+            score++;
+            scoreEl.innerText = score;
+            
+            // Randomize new pineapple position
+            // Make sure it doesn't spawn on snake body
+            let validSpawn = false;
+            while(!validSpawn) {
+                ax = Math.floor(Math.random() * tileCount);
+                ay = Math.floor(Math.random() * tileCount);
+                validSpawn = true;
+                for(let part of trail) {
+                    if(part.x === ax && part.y === ay) {
+                        validSpawn = false;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    function handleGameOver() {
+        isGameOver = true;
+        // Check High Score
+        if(score > highScore) {
+            highScore = score;
+            localStorage.setItem('jungleSnakeHighScore', highScore);
+            highScoreEl.innerText = highScore;
+        }
+        msgOverlay.style.display = 'block';
+    }
+
+    // --- Keyboard Controls ---
+    document.addEventListener('keydown', keyPush);
+
+    function keyPush(evt) {
+        // If game is over, any arrow key restarts
+        if(isGameOver && (evt.keyCode >= 37 && evt.keyCode <= 40)) {
+            resetGame();
+            return;
+        }
+
+        // 37=Left, 38=Up, 39=Right, 40=Down
+        switch(evt.keyCode) {
+            case 37:
+                if(xv === 1) return; // Can't go back into self
+                xv = -1; yv = 0;
+                break;
+            case 38:
+                if(yv === 1) return;
+                xv = 0; yv = -1;
+                break;
+            case 39:
+                if(xv === -1) return;
+                xv = 1; yv = 0;
+                break;
+            case 40:
+                if(yv === -1) return;
+                xv = 0; yv = 1;
+                break;
+        }
+    }
+
+    // Initialize on load
+    window.onload = resetGame;
+
+</script>
+</body>
+</html>

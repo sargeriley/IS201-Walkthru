@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: How to Build a House</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto+Slab:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Color Variables --- */
+        :root {
+            --concrete-light: #eceff1;
+            --concrete-dark: #b0bec5;
+            --wood-dark: #3e2723;   /* Dark Walnut */
+            --wood-warm: #5d4037;   /* Lighter Oak */
+            --safety-orange: #ff6f00; /* High Contrast Accent */
+            --blueprint-blue: #0277bd;
+            --text-main: #263238;
+        }
+
+        /* --- Global Reset & Typography --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--concrete-light);
+            background-image: linear-gradient(to bottom, #eceff1, #cfd8dc);
+            font-family: 'Roboto Slab', serif;
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Oswald', sans-serif; /* The "Blocky" font */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- Layout Container --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            border: 1px solid var(--concrete-dark);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            border-top: 10px solid var(--wood-dark); /* Roof-like visual */
+        }
+
+        /* --- Header Section --- */
+        header {
+            background-color: var(--wood-warm);
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 5px solid var(--safety-orange);
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* --- Content Section --- */
+        .content {
+            padding: 3rem;
+        }
+
+        .intro {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            border-left: 4px solid var(--safety-orange);
+            padding-left: 1rem;
+            background-color: rgba(255, 111, 0, 0.05);
+            padding: 1rem;
+        }
+
+        /* --- The Steps List --- */
+        .steps-list {
+            list-style: none; /* Remove default bullets */
+            counter-reset: house-step; /* Initialize counter */
+        }
+
+        .step-item {
+            position: relative;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem 1.5rem 1.5rem 4rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .step-item:hover {
+            transform: translateX(5px);
+            box-shadow: -5px 5px 0px var(--concrete-dark);
+            border-color: var(--wood-warm);
+        }
+
+        /* Custom Numbering Block */
+        .step-item::before {
+            counter-increment: house-step;
+            content: counter(house-step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3rem;
+            background-color: var(--wood-dark);
+            color: var(--safety-orange);
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-title {
+            display: block;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.4rem;
+            color: var(--wood-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- Links --- */
+        a {
+            color: var(--blueprint-blue);
+            text-decoration: none;
+            font-weight: 700;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        a:hover {
+            border-bottom: 2px solid var(--blueprint-blue);
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--concrete-light);
+            color: var(--text-main);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--concrete-dark);
+        }
+
+        /* --- Responsive Tweaks --- */
+        @media (max-width: 600px) {
+            header h1 { font-size: 2rem; }
+            .content { padding: 1.5rem; }
+            .step-item { padding-left: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div>Menu: <a href="index.html">Home</a></div>
+        <header>
+            <h1>Residential Construction Guide</h1>
+            <p>A step-by-step overview of the home building process</p>
+        </header>
+
+        <div class="content">
+            <div class="intro">
+                <p>Building a house is a monumental project that involves coordinating various trades, materials, and regulations. Below is a high-level sequential breakdown of the construction phases.</p>
+            </div>
+
+            <ol class="steps-list">
+                <li class="step-item">
+                    <span class="step-title">Site Preparation and Grading</span>
+                    Before any building begins, the land must be cleared of trees and debris. The site is graded to ensure a flat surface and proper drainage. 
+                    <br><br>
+                    <strong>Read more:</strong> <a href="https://en.wikipedia.org/wiki/Earthworks_(engineering)" target="_blank">Earthworks (Engineering)</a>
+                </li>
+
+                <li class="step-item">
+                    <span class="step-title">Foundation Work</span>
+                    The crew pours the concrete slab, basement, or crawl space walls. This is the structural base that supports the entire weight of the home.
+                    <br><br>
+                    <strong>Read more:</strong> <a href="https://en.wikipedia.org/wiki/Foundation_(engineering)" target="_blank">Foundation Types</a>
+                </li>
+
+                <li class="step-item">
+                    <span class="step-title">Rough Framing</span>
+                    The skeleton of the house is erected. This includes the floor systems, walls, and roof trusses. The house takes its actual shape during this phase.
+                    <br><br>
+                    <strong>Read more:</strong> <a href="https://en.wikipedia.org/wiki/Framing_(construction)" target="_blank">Framing (Construction)</a>
+                </li>
+
+                <li class="step-item">
+                    <span class="step-title">Installation of Mechanicals</span>
+                    Once the shell is up, the "guts" of the house are installed. This includes <a href="https://en.wikipedia.org/wiki/Piping_and_plumbing_fitting" target="_blank">plumbing pipes</a>, electrical wiring, and HVAC ductwork before the walls are closed up.
+                </li>
+
+                <li class="step-item">
+                    <span class="step-title">Insulation and Drywall</span>
+                    Insulation is placed in exterior walls and the attic to regulate temperature. Afterward, drywall (sheetrock) is hung, taped, and mudded to create finished walls.
+                    <br><br>
+                    <strong>Read more:</strong> <a href="https://en.wikipedia.org/wiki/Drywall" target="_blank">Drywall Construction</a>
+                </li>
+
+                <li class="step-item">
+                    <span class="step-title">Interior Finishes and Trim</span>
+                    This phase involves installing interior doors, window sills, baseboards, and cabinets. Hardwood floors or tiles are usually laid down during this stage as well.
+                </li>
+
+                <li class="step-item">
+                    <span class="step-title">Exterior Finishes</span>
+                    While the inside is being finished, the exterior receives siding, brick, or stucco, along with final driveway paving and walkway construction.
+                    <br><br>
+                    <strong>Read more:</strong> <a href="https://en.wikipedia.org/wiki/Siding" target="_blank">Siding Materials</a>
+                </li>
+
+                <li class="step-item">
+                    <span class="step-title">Final Walkthrough</span>
+                    A final inspection is conducted to ensure all systems are working and building codes are met before the final occupancy permit is issued.
+                </li>
+            </ol>
+        </div>
+
+        <footer>
+            &copy; 2023 Construction Guide Project. Educational Use Only.
+        </footer>
+    </div>
+
+</body>
+</html>
